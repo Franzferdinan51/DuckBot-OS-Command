@@ -1,4 +1,4 @@
-import type { AgentNode, DarkbloomState, DiscreteNode, Gpu, ModelState, RsiState, StorageState, SwitchState, TrainingState, UnifiedNode } from '../lib/api'
+import type { AgentNode, DarkbloomState, DefconState, DiscreteNode, Gpu, ModelState, RsiState, StorageState, SwitchState, TrainingState, UnifiedNode } from '../lib/api'
 import { fmtBps, fmtTps, fx, isNum, tempTone, tempWord } from '../lib/format'
 import { Bar, Big, Chip, Fresh, KV, Led, Panel, Pill, Sparkline } from '../components/Panel'
 
@@ -345,3 +345,27 @@ export function RsiCard({ r }: { r: RsiState }) {
   )
 }
 
+export function DefconCard({ d }: { d: DefconState }) {
+  const reach = !!d.estimate || d.declared != null
+  const level = d.declared ?? 5
+  return (
+    <Panel id="card-defcon" dim={!reach}
+      title={<><Led on={reach} /> <span>DEFCON posture</span></>}
+      chips={<Chip tone={d.declared ? 'bad' : 'good'}>{d.declared ? `DEFCON ${d.declared} DECLARED` : 'NOTHING DECLARED'}</Chip>}>
+      {reach ? (
+        <>
+          <div className="bigrow">
+            <Big label="Posture" value={`DEFCON ${level}`} />
+            <Big label="Advisory estimate" value={d.estimate ? `DEFCON ${d.estimate}` : '—'} small />
+          </div>
+          {d.estimate_date && <KV k="Estimate date">{d.estimate_date} · refreshed daily ~07:38 ET</KV>}
+          {d.wireguard && <KV k="WireGuard mesh">{d.wireguard}</KV>}
+          {d.tailscale && <KV k="Tailscale">{d.tailscale}</KV>}
+          {d.batman && <KV k="Batman SSH">{d.batman}</KV>}
+          {d.note && <KV k="Rule">{d.note}</KV>}
+        </>
+      ) : <p className="card__err">No DEFCON state pushed yet: {d.err || 'waiting for the VM pusher'}</p>}
+      <Fresh ts={d.ts || 0} err={reach ? null : d.err} staleAfter={3600} />
+    </Panel>
+  )
+}

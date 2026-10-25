@@ -4,7 +4,7 @@ import { useLayout } from '../lib/layout'
 import { Module } from '../components/Module'
 import { ThemeMenu } from '../components/ThemeMenu'
 import { Empty } from '../components/Panel'
-import { UnifiedCard, GpuCard, HostCard, SwitchCard, ModelCard, TrainingCard, AgentCard, StorageCard, DarkbloomCard, RsiCard } from './Cards'
+import { UnifiedCard, GpuCard, HostCard, SwitchCard, ModelCard, TrainingCard, AgentCard, StorageCard, DarkbloomCard, RsiCard, DefconCard } from './Cards'
 import { KV, Panel } from '../components/Panel'
 import { Settings } from './Settings'
 import { ControlPlane } from './ControlPlane'
@@ -131,10 +131,11 @@ function FleetSection({ s, subs, toggleSub }: { s: SectionCfg; subs: string[]; t
           ))}
         </div>
       )}
-      {(config.storage?.enabled || config.darkbloom?.enabled) && (metrics.storage || metrics.darkbloom) && (
+      {(config.storage?.enabled || config.darkbloom?.enabled || config.defcon?.enabled) && (metrics.storage || metrics.darkbloom || metrics.defcon) && (
         <div className="cards cards--4">
           {config.storage?.enabled && metrics.storage && <StorageCard s={metrics.storage} />}
           {config.darkbloom?.enabled && metrics.darkbloom && <DarkbloomCard d={metrics.darkbloom} />}
+          {config.defcon?.enabled && metrics.defcon && <DefconCard d={metrics.defcon} />}
         </div>
       )}
       {metrics.events && metrics.events.length > 0 && (

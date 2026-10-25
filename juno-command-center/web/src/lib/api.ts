@@ -51,6 +51,7 @@ export interface UiConfig {
   darkbloom: { enabled: boolean }
   duckbot: { enabled: boolean }
   rsi: { enabled: boolean }
+  defcon: { enabled: boolean }
   settings: { enabled: boolean }
   chat: { enabled: boolean; name: string; suggestions: string[] }
 }
@@ -123,9 +124,15 @@ export interface RsiState {
   next_run?: { date: string; plan: string }
   frozen?: { suite: string; base: string; drift: string }
 }
+export interface DefconState {
+  reachable?: boolean; ts?: number; err?: string
+  declared?: number | null; estimate?: number; estimate_date?: string; note?: string
+  wireguard?: string; tailscale?: string; batman?: string
+}
+
 export interface Metrics {
   ts: number; version: string; read_only: boolean
-  rsi: RsiState
+  rsi: RsiState; defcon: DefconState
   nodes: FleetNode[]; switch: SwitchState; history: Record<string, number[]>; models: ModelState[]
   training?: TrainingState
   storage?: StorageState

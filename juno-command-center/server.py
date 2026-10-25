@@ -1384,6 +1384,7 @@ def snapshot():
         darkbloom = dict(STATE.get("darkbloom") or {})
         events = list(STATE.get("events") or [])
     rsi = rsi_snapshot()
+    defcon = defcon_snapshot()
     sd = CFG["defaults"]
     unified = [x for x in nodes if x.get("profile") == "unified"]
     discrete = [x for x in nodes if x.get("profile") != "unified"]
@@ -1435,6 +1436,7 @@ def snapshot():
         "storage": storage,
         "darkbloom": darkbloom,
         "rsi": rsi,
+        "defcon": defcon,
         "events": events,
         "spark_models": by_unit("spark"),
         "box_models": by_unit("box"),
@@ -1475,9 +1477,9 @@ def stations_snapshot():
 
 
 # ----------------------------------------------------------------------------
-# Pushed state files (VM -> data/) + the AI Shield's own local API.
-# RSI and DEFCON state are curated on Juno's VM and pushed beside juno-stats.json;
-# the Shield card reads the Shield app's own status endpoint on this host.
+# Pushed state files (VM -> data/): RSI and DEFCON state are curated on Juno's VM
+# and pushed beside juno-stats.json. AI Shield is deliberately NOT read here —
+# it stays its own separate app (Duckets' order, 2026-10-25).
 # ----------------------------------------------------------------------------
 
 def _read_pushed(name):
@@ -1486,6 +1488,15 @@ def _read_pushed(name):
             return json.load(f)
     except Exception:  # noqa
         return None
+
+
+def defcon_snapshot():
+    d = _read_pushed("defcon-stats.json")
+    if not d:
+        return {"reachable": False, "ts": 0, "err": "no DEFCON state pushed yet"}
+    d = dict(d)
+    d["reachable"] = True
+    return d
 
 
 def rsi_snapshot():
@@ -1990,6 +2001,7 @@ def public_config():
         "darkbloom": {"enabled": bool(DARKBLOOM.get("enabled"))},
         "duckbot": {"enabled": True},
         "rsi": {"enabled": True},
+        "defcon": {"enabled": True},
         "keylights": {"enabled": bool(CFG["keylights"].get("enabled")),
                       "writes": bool(CFG["keylights"].get("allow_writes")) and not READ_ONLY},
         "chat": {"enabled": bool(CHAT.get("enabled", True)), "name": CHAT.get("name") or "Juno",
