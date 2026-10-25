@@ -7,7 +7,7 @@ const root = new URL('./public/', import.meta.url);
 const home = homedir();
 const hermes = join(home, '.hermes');
 const rag = join(home, 'duckbot-rag-memory');
-const SHIM_URL = process.env.SYSTEMONE_SHIM_URL || 'http://127.0.0.1:8765';
+const SHIM_URL = process.env.SYSTEMONE_SHIM_URL || 'http://127.0.0.1:8766';
 
 async function exists(path) { try { await stat(path); return true; } catch { return false; } }
 async function json(path, fallback) { try { return JSON.parse(await readFile(path, 'utf8')); } catch { return fallback; } }

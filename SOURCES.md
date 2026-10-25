@@ -7,7 +7,7 @@ Snapshot created 2026-10-25.
 - Path: `duckbot-os/`
 - Source checkout: `~/duckbot-os` on the Mac Studio
 - Source branch: `main`
-- Source commit: `72ef5912` — "Fix dead sidebar tabs: add Brain and Automation panels, wire nav smooth-scroll + scrollspy, SystemOne decide tester"
+- Source commit: `cd8ec553` — "Shim URL port fix 8765 → 8766" (2026-10-25), on top of `72ef5912`.
 - Included: the tracked source files from that commit. Local `.bak-*` files were not included.
 
 ## Juno Command Center — now the ONE dashboard
@@ -15,7 +15,7 @@ Snapshot created 2026-10-25.
 - Path: `juno-command-center/`
 - Source checkout: `~/command-center` on the Mac Studio
 - Source branch: `main`
-- Source commit: `a24c528` — "DEFCON quick status card back (posture only)" (2026-10-25). The AI Shield card was removed the same day at Duckets' order and stays removed: security tooling lives in its own app (AI Shield GUI on :8770); only the quick DEFCON posture card is on this board.
+- Source commit: `6784d56` — "SystemOne fix: shim port 8765 → 8766; Brain decide proxy translation" (2026-10-25). Only the quick DEFCON posture card is on this board; AI Shield stays in its own app.
 - Prior home: `Franzferdinan51/The-Sparky-Command-Center`
 - **The merge:** DuckBot OS's control plane now lives inside this app — server-side `/api/duckbot` + `/api/duckbot/decide` (SystemOne shim proxy) in `server.py`, and a "Control plane" board module (`web/src/sections/ControlPlane.tsx`: connected layers, agent fleet, policy gate, automation, Brain decide tester) in this board's design. The standalone DuckBot OS server on :4177 was retired the same day; the unified dashboard runs on **:8895**.
 - Included: the tracked source files and built web UI from that commit.

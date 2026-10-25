@@ -1596,7 +1596,7 @@ def settings_payload():
 # Folded in from the standalone DuckBot OS app (~/duckbot-os, Node) on 2026-10-25 so
 # there is ONE dashboard: this board's design, DuckBot OS's control plane inside it.
 
-SHIM_URL = os.environ.get("SYSTEMONE_SHIM_URL", "http://127.0.0.1:8765")
+SHIM_URL = os.environ.get("SYSTEMONE_SHIM_URL", "http://127.0.0.1:8766")
 _duckbot_cache = {"ts": 0, "data": None}
 
 
@@ -1684,8 +1684,24 @@ def duckbot_snapshot():
 
 
 def duckbot_decide(body):
+    body = body or {}
+    if "state" not in body:
+        q = str(body.get("prompt") or body.get("query") or "").strip()
+        if not q:
+            return 400, {"error": "empty question"}
+        body = {
+            "state": q,
+            "instructions": "Choose the best handling for this request.",
+            "type": "choice",
+            "criteria": {
+                "act_now": "handle it immediately on the fast route",
+                "plan_first": "plan it first, then use the deep route",
+                "ask_owner": "needs the owner's decision before anything happens",
+                "decline": "should not be done",
+            },
+        }
     code, text = _http_post(SHIM_URL + "/v1/systemone/decide",
-                            json.dumps(body or {}).encode(), timeout=8)
+                            json.dumps(body).encode(), timeout=30)
     if code == 0:
         return 502, {"error": "shim unreachable"}
     try:
