@@ -1,0 +1,19 @@
+# Real local configuration and runtime state stay off GitHub
+**/config.json
+**/config.*.local.json
+.env
+.env.*
+!**/.env.example
+*.key
+*.log
+**/data/*
+!**/data/.gitkeep
+
+# Dependencies and caches
+**/node_modules/
+**/__pycache__/
+*.pyc
+
+# Editor / OS / backups
+.DS_Store
+*.bak*

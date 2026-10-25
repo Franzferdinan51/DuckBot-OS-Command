@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.duckbot.masterdashboard.plist
+  Keeps ~/Desktop/MasterDashboard/dashboard/server.js running 24/7 on port 18798.
+  Auto-restarts on crash with 5s backoff. Stdout/stderr → ~/Library/Logs/DuckBot/masterdashboard.log.
+
+  Install:
+    launchctl load ~/Library/LaunchAgents/com.duckbot.masterdashboard.plist
+  Start now:
+    launchctl start com.duckbot.masterdashboard
+  Stop:
+    launchctl stop com.duckbot.masterdashboard
+  Uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.duckbot.masterdashboard.plist
+
+  This is part of priority #3 from the 2026-06-19 nightly review
+  ("Add pm2/launchd plist to keep node server.js alive 24/7").
+  Cloud-only: server advertises minimax-portal/MiniMax-M2.7 (no local fallbacks).
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.duckbot.masterdashboard</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/duckets/.local/bin/node</string>
+        <string>/Users/duckets/Desktop/MasterDashboard/dashboard/server.js</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/duckets/.npm-global/bin:/Users/duckets/.local/bin:/opt/homebrew/bin:/opt/homebrew/Cellar/node/26.3.1/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>PORT</key>
+        <string>18798</string>
+        <key>NODE_ENV</key>
+        <string>production</string>
+    </dict>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/duckets/Desktop/MasterDashboard/dashboard</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+        <key>Crashed</key>
+        <true/>
+    </dict>
+
+    <key>ThrottleInterval</key>
+    <integer>5</integer>
+
+    <key>StandardOutPath</key>
+    <string>/Users/duckets/Library/Logs/DuckBot/masterdashboard.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/duckets/Library/Logs/DuckBot/masterdashboard.log</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <key>Nice</key>
+    <integer>5</integer>
+</dict>
+</plist>

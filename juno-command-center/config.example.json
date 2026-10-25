@@ -1,0 +1,245 @@
+{
+  "_comment": "Juno Command Center \u2014 Duckets' fleet. Runs on the Mac Studio; polls the Mac via the Dashboard bridge (port 8901) + ioreg, Batman-3 over SSH, LM Studio + Unsloth + ComfyUI on localhost. Read-only.",
+  "chat": {
+    "api_key": "",
+    "base_url": "http://127.0.0.1:1234/v1",
+    "enabled": true,
+    "extra_body": {},
+    "fallbacks": [],
+    "grounding": true,
+    "max_tokens": 1200,
+    "model": "ornith-1.5-35b-a3b",
+    "name": "Juno",
+    "suggestions": [
+      "What is down right now?",
+      "How is Bolt's training doing?",
+      "Which node is working hardest?",
+      "What is loaded in LM Studio?"
+    ],
+    "system_prompt": "",
+    "temperature": 0.1,
+    "timeout": 180
+  },
+  "comfy_lanes": [
+    {
+      "host": "mac-studio",
+      "key": "mac-comfy",
+      "lane": "A",
+      "name": "Mac Studio \u00b7 MPS",
+      "src": {
+        "kind": "unified",
+        "node": "mac-studio"
+      },
+      "url": "http://127.0.0.1:8188"
+    }
+  ],
+  "comfy_title": "Render lanes \u00b7 ComfyUI",
+  "darkbloom": {
+    "bridge_url": "http://127.0.0.1:8901/api/darkbloom",
+    "enabled": true,
+    "poll_seconds": 60
+  },
+  "defaults": {
+    "model_poll_interval": 6.0,
+    "poll_interval": 7.0,
+    "stale_after_s": 20,
+    "temp_hot": 84,
+    "temp_warn": 70
+  },
+  "eco": {
+    "allow_writes": false,
+    "enabled": false,
+    "info_url": "",
+    "levels": []
+  },
+  "keylights": {
+    "allow_writes": false,
+    "enabled": false,
+    "url": ""
+  },
+  "models": [
+    {
+      "endpoint": "http://127.0.0.1:1234",
+      "gpus": "Mac Studio \u00b7 M5 Max",
+      "key": "lmstudio",
+      "kind": "lmstudio",
+      "label": "LM Studio",
+      "node": "mac-studio",
+      "port": 1234,
+      "unit": "studio"
+    }
+  ],
+  "nodes": [
+    {
+      "badge": "M5 MAX \u00b7 128 GB",
+      "bridge_url": "http://127.0.0.1:8901/api/system",
+      "key": "mac-studio",
+      "local": true,
+      "name": "Mac Studio",
+      "node_id": "mac-studio",
+      "profile": "apple",
+      "rank": 0
+    },
+    {
+      "badge": "RTX 5060 TI \u00b7 WINDOWS",
+      "host": "batman-3",
+      "key": "batman-3",
+      "name": "Batman-3",
+      "node_id": "batman-3",
+      "profile": "windows",
+      "rank": 1,
+      "ssh_key": "~/.ssh/id_ed25519",
+      "user": "duckets"
+    },
+    {
+      "badge": "MUSE VM \u00b7 AGENT",
+      "key": "juno-vm",
+      "name": "Juno",
+      "node_id": "muse-vm",
+      "profile": "agent",
+      "rank": 2,
+      "stale_after_s": 240,
+      "stats_file": "data/juno-stats.json"
+    }
+  ],
+  "sections": [
+    {
+      "eyebrow": "Huber Heights \u00b7 Ohio",
+      "key": "fleet",
+      "models_title": "Model serving \u00b7 LM Studio",
+      "nodes": [
+        "mac-studio",
+        "batman-3",
+        "juno-vm"
+      ],
+      "subtitle": "Mac Studio + Batman-3",
+      "title": "The Fleet",
+      "units": [
+        "studio"
+      ]
+    }
+  ],
+  "server": {
+    "allowed_hosts": [
+      "ryans-mac-mini",
+      "ryans-mac-mini.tail2a5ff.ts.net"
+    ],
+    "bind": [
+      "127.0.0.1",
+      "ryans-mac-mini"
+    ],
+    "browser_refresh_ms": 2500,
+    "location": "Huber Heights, Ohio",
+    "port": 8895,
+    "read_only": true,
+    "subtitle": "Duckets' AI fleet",
+    "timezone": "America/New_York",
+    "title": "Juno Command Center"
+  },
+  "ssh": {
+    "connect_timeout": 8,
+    "default_key": "~/.ssh/id_ed25519",
+    "options": {
+      "BatchMode": "yes",
+      "IdentitiesOnly": "yes",
+      "StrictHostKeyChecking": "accept-new"
+    }
+  },
+  "stations": {
+    "enabled": true,
+    "items": [
+      {
+        "desc": "this board",
+        "emoji": "\ud83e\udd86",
+        "name": "Juno Command Center",
+        "port": 8895,
+        "probe_url": "http://127.0.0.1:8895/healthz",
+        "url": "http://ryans-mac-mini:8895/"
+      },
+      {
+        "desc": "Bolt QLoRA training",
+        "emoji": "\ud83c\udf9b\ufe0f",
+        "name": "Unsloth Studio",
+        "port": 8888,
+        "probe_url": "http://127.0.0.1:8889/api/train/status",
+        "url": "http://ryans-mac-mini:8888/"
+      },
+      {
+        "desc": "local model serving",
+        "emoji": "\ud83e\udde0",
+        "name": "LM Studio",
+        "port": 1234,
+        "probe_url": "http://127.0.0.1:1234/v1/models",
+        "url": "http://ryans-mac-mini:1234/"
+      },
+      {
+        "desc": "image + video renders",
+        "emoji": "\ud83c\udfa8",
+        "name": "ComfyUI",
+        "port": 8188,
+        "probe_url": "http://127.0.0.1:8188/system_stats",
+        "url": "http://ryans-mac-mini:8188/"
+      },
+      {
+        "desc": "Mac vitals + Darkbloom + LM Studio JSON",
+        "emoji": "\ud83d\udcca",
+        "name": "Dashboard Bridge",
+        "port": 8901,
+        "probe_url": "http://127.0.0.1:8901/api/health",
+        "url": "http://ryans-mac-mini:8901/"
+      },
+      {
+        "desc": "D1 decision routing for grok-local",
+        "emoji": "\ud83d\udd00",
+        "name": "SystemOne Shim",
+        "port": 8766,
+        "probe_url": "http://127.0.0.1:8766/",
+        "url": "http://ryans-mac-mini:8766/"
+      },
+      {
+        "desc": "provider status via the bridge",
+        "emoji": "\ud83c\udf11",
+        "name": "Darkbloom",
+        "port": 8901,
+        "probe_url": "http://127.0.0.1:8901/api/darkbloom",
+        "url": "http://ryans-mac-mini:8901/"
+      }
+    ]
+  },
+  "storage": {
+    "enabled": true,
+    "volumes": [
+      {
+        "label": "Internal",
+        "path": "/"
+      },
+      {
+        "label": "Sabrent",
+        "path": "/Volumes/Sabrent"
+      }
+    ],
+    "watch": [
+      "~/.cache/huggingface",
+      "~/Documents/datasets",
+      "~/Library/Caches",
+      "/Volumes/Sabrent/ComfyUI-models",
+      "/Volumes/Sabrent/DuckBot-Training-Archive"
+    ]
+  },
+  "switch": {
+    "enabled": false
+  },
+  "tokens": {
+    "enabled": false,
+    "mode": "bank",
+    "order": [],
+    "poll_seconds": 120,
+    "store": "data/token_usage.json"
+  },
+  "training": {
+    "enabled": true,
+    "label": "Bolt QLoRA \u00b7 Unsloth",
+    "poll_seconds": 10,
+    "url": "http://127.0.0.1:8889/api/train/status"
+  }
+}
