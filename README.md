@@ -1,22 +1,12 @@
 # DuckBot OS Control Center
 
-A combined home for Duckets' local command surfaces:
+One dashboard, one home. As of 2026-10-25 the dashboards are **merged into a single app**: the Juno Command Center (Duckets' favorite design) now contains the DuckBot OS control plane — connected layers, agent fleet, policy gate, automation, and the Brain's SystemOne decide tester — as its "Control plane" module. The standalone DuckBot OS page was retired; there is one dashboard, on **:8895**.
 
-- **`duckbot-os/`** — the local-first DuckBot OS control plane. A dependency-free Node app that fronts Hermes, DuckBot RAG memory, and SystemOne's typed decisions behind one dashboard and a policy gate.
-- **`juno-command-center/`** — the Juno Command Center fleet board. A Python-standard-library server with a React/TypeScript UI for live machine, model, training, storage, and render-lane status.
+- **`juno-command-center/`** — THE dashboard. A Python-standard-library server with a React/TypeScript UI: live machine, model, training, storage, and render-lane status, plus the DuckBot OS control plane.
+- **`duckbot-os/`** — the original standalone DuckBot OS Node app, kept as the reference source the control plane was folded from. No longer run separately.
 - **`master-dashboard/`** — the legacy MasterDashboard (:18798). Its source folder is missing from the Mac; only its LaunchAgent survives and is preserved there for the record.
 
-The two apps remain independently runnable; this repository keeps their source together so the control-center work has one canonical home.
-
-## Run DuckBot OS
-
-```bash
-cd duckbot-os
-npm start
-# http://127.0.0.1:4177
-```
-
-## Run Juno Command Center
+## Run the dashboard
 
 ```bash
 cd juno-command-center

@@ -27,7 +27,7 @@ export function Nav({ onAsk }: { onAsk: () => void }) {
   useEffect(() => { document.body.style.overflow = open ? 'hidden' : '' }, [open])
 
   const sections = config?.sections.map(s => ({ id: s.key, label: s.eyebrow || s.title })) || []
-  const links = [...sections, ...LINKS.filter(l => (l.id === 'eco' && config?.eco.enabled) || (l.id === 'tokens' && config?.tokens.enabled) || (l.id === 'video' && config?.comfy.enabled) || (l.id === 'stations' && (config?.stations.enabled || config?.keylights.enabled)))]
+  const links = [...(config?.duckbot?.enabled ? [{ id: 'control', label: 'Control' }] : []), ...sections, ...LINKS.filter(l => (l.id === 'eco' && config?.eco.enabled) || (l.id === 'tokens' && config?.tokens.enabled) || (l.id === 'video' && config?.comfy.enabled) || (l.id === 'stations' && (config?.stations.enabled || config?.keylights.enabled)))]
   const go = (id: string) => {
     setOpen(false)
     if (collapsed.has(id)) toggle(id)

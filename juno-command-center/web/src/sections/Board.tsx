@@ -7,6 +7,7 @@ import { Empty } from '../components/Panel'
 import { UnifiedCard, GpuCard, HostCard, SwitchCard, ModelCard, TrainingCard, AgentCard, StorageCard, DarkbloomCard } from './Cards'
 import { KV, Panel } from '../components/Panel'
 import { Settings } from './Settings'
+import { ControlPlane } from './ControlPlane'
 import { Video } from './Video'
 import { Tokens } from './Tokens'
 import { Eco } from './Eco'
@@ -36,6 +37,7 @@ export function Board() {
   const modules = useMemo(() => {
     const out: { id: string; eyebrow: string; title: ReactNode; subtitle?: ReactNode; tone?: 'amber' | 'violet' | 'good'; render: () => ReactNode; meta?: () => ReactNode }[] = []
     if (!config) return out
+    if (config.duckbot?.enabled) out.push({ id: 'control', eyebrow: 'DuckBot OS', title: 'Control plane', subtitle: 'layers, agent fleet, policy gate, and the Brain', tone: 'amber', render: () => <ControlPlane /> })
     if (config.eco.enabled) out.push({ id: 'eco', eyebrow: 'Clock ECO mode', title: 'GB10 power caps', tone: 'good', render: () => <Eco /> })
     if (config.tokens.enabled) out.push({ id: 'tokens', eyebrow: 'Token tracker', title: 'Tokens served', subtitle: 'cumulative per model, banked across restarts', tone: 'violet', render: () => <Tokens /> })
     if (config.training?.enabled) out.push({ id: 'training', eyebrow: 'Unsloth Studio', title: config.training.label, subtitle: 'live run status from the Studio backend', tone: 'amber', render: () => <TrainingModule /> })

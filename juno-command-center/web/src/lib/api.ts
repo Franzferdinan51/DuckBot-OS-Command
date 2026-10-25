@@ -49,6 +49,7 @@ export interface UiConfig {
   training: { enabled: boolean; label: string }
   storage: { enabled: boolean }
   darkbloom: { enabled: boolean }
+  duckbot: { enabled: boolean }
   settings: { enabled: boolean }
   chat: { enabled: boolean; name: string; suggestions: string[] }
 }
@@ -154,4 +155,21 @@ export const getLights = () => getJSON<{ lights: Light[]; down?: boolean; disabl
 export const getEcoStatus = () => getJSON<{ status: Record<string, string>; disabled?: boolean }>('/api/eco-status', 40000)
 export const getChatStatus = (force = false) => getJSON<ChatStatus>(`/api/chat/status${force ? '?force=1' : ''}`)
 export const getSettings = () => getJSON<SettingsData>('/api/settings')
+
+/* ------------------------------------------------------------- DuckBot OS */
+
+export interface DuckBotState {
+  product: string; version: string; mode: string
+  layers: {
+    hermes: { status: string; model: string; profiles: boolean }
+    rag: { status: string; path: string }
+    systemOne: { status: string; mode: string; model?: string; backend?: string; reason?: string }
+    opencode: { status: string; zenConfigured: boolean; localProviders: number }
+  }
+  fleet: { name: string; role: string; state: string; risk: string }[]
+  automation: { jobs: number; policy: string }
+  approvals: { pending: number; policy: string }
+}
+export const getDuckBot = () => getJSON<DuckBotState>('/api/duckbot')
+export const postDecide = (q: string) => postJSON<unknown>('/api/duckbot/decide', { prompt: q, query: q })
 export const postBrainModel = (model: string) => postJSON<{ ok: boolean; model?: string; persisted?: boolean; error?: string }>('/api/settings/chat', { model })

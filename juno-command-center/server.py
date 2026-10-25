@@ -1556,6 +1556,94 @@ def settings_payload():
             "lmstudio": _lmstudio_library()}
 
 
+# ---------------------------------------------------------- DuckBot OS control plane
+# Folded in from the standalone DuckBot OS app (~/duckbot-os, Node) on 2026-10-25 so
+# there is ONE dashboard: this board's design, DuckBot OS's control plane inside it.
+
+SHIM_URL = os.environ.get("SYSTEMONE_SHIM_URL", "http://127.0.0.1:8765")
+_duckbot_cache = {"ts": 0, "data": None}
+
+
+def _shim_json(path, timeout=3):
+    ok, text = _http_get(SHIM_URL + path, timeout=timeout)
+    if not ok or not text:
+        return None, "no response from shim"
+    try:
+        return json.loads(text), None
+    except Exception as e:  # noqa
+        return None, "shim returned non-JSON: %s" % str(e)[:80]
+
+
+def duckbot_snapshot():
+    now = time.time()
+    if _duckbot_cache["data"] and now - _duckbot_cache["ts"] < 10:
+        return _duckbot_cache["data"]
+    home = os.path.expanduser("~")
+    hermes = os.path.join(home, ".hermes")
+    model = "unknown"
+    try:
+        with open(os.path.join(hermes, "config.yaml")) as f:
+            m = re.search(r"default:\s*([^\s]+)", f.read())
+            if m:
+                model = m.group(1)
+    except Exception:  # noqa
+        pass
+    jobs = 0
+    try:
+        with open(os.path.join(hermes, "cron", "jobs.json")) as f:
+            j = json.load(f)
+            jobs = len(j) if isinstance(j, list) else 0
+    except Exception:  # noqa
+        pass
+    zen, providers = False, 0
+    try:
+        with open(os.path.join(home, ".config", "opencode", "opencode.jsonc")) as f:
+            oc = f.read()
+        zen = bool(re.search(r"[\"'](?:opencode|zen)[\"']\s*:", oc, re.I))
+        providers = len(re.findall(r"\"provider\"\s*:", oc))
+    except Exception:  # noqa
+        pass
+    health, herr = _shim_json("/healthz")
+    if health:
+        system_one = {"status": "connected", "mode": "active",
+                      "model": health.get("model", "unknown"),
+                      "backend": health.get("backend", "local"), "url": SHIM_URL}
+    else:
+        system_one = {"status": "disconnected", "mode": "shadow-only", "reason": herr}
+    data = {
+        "product": "DuckBot OS", "version": "0.1.0", "mode": "local-first / preview",
+        "layers": {
+            "hermes": {"status": "connected", "model": model,
+                       "profiles": os.path.isdir(os.path.join(hermes, "profiles"))},
+            "rag": {"status": "connected" if os.path.isdir(os.path.join(home, "duckbot-rag-memory")) else "missing",
+                    "path": "duckbot-rag-memory"},
+            "systemOne": system_one,
+            "opencode": {"status": "configured", "zenConfigured": zen, "localProviders": providers},
+        },
+        "fleet": [
+            {"name": "Agent DuckBot", "role": "orchestrator", "state": "active", "risk": "approval-gated"},
+            {"name": "Ops", "role": "systems and reliability", "state": "ready", "risk": "read-only default"},
+            {"name": "Research", "role": "evidence and briefings", "state": "ready", "risk": "source-linked"},
+            {"name": "Build", "role": "coding and verification", "state": "ready", "risk": "sandboxed changes"},
+        ],
+        "automation": {"jobs": jobs, "policy": "cron sensitive actions denied"},
+        "approvals": {"pending": 0, "policy": "smart approval required for external or destructive actions"},
+    }
+    _duckbot_cache.update(ts=now, data=data)
+    return data
+
+
+def duckbot_decide(body):
+    code, text = _http_post(SHIM_URL + "/v1/systemone/decide",
+                            json.dumps(body or {}).encode(), timeout=8)
+    if code == 0:
+        return 502, {"error": "shim unreachable"}
+    try:
+        return code, json.loads(text)
+    except Exception:  # noqa
+        return 502, {"error": "shim returned non-JSON"}
+
+
 def _tz():
     name = CFG["server"].get("timezone") or ""
     try:
@@ -1861,6 +1949,7 @@ def public_config():
         "settings": {"enabled": True},
         "storage": {"enabled": bool(STORAGE.get("enabled"))},
         "darkbloom": {"enabled": bool(DARKBLOOM.get("enabled"))},
+        "duckbot": {"enabled": True},
         "keylights": {"enabled": bool(CFG["keylights"].get("enabled")),
                       "writes": bool(CFG["keylights"].get("allow_writes")) and not READ_ONLY},
         "chat": {"enabled": bool(CHAT.get("enabled", True)), "name": CHAT.get("name") or "Juno",
@@ -1957,6 +2046,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(chat_status(force=q.get("force", ["0"])[0] == "1"))
         if path == "/api/settings":
             return self._json(settings_payload())
+        if path == "/api/duckbot":
+            return self._json(duckbot_snapshot())
         if path.startswith("/api/"):
             return self._json({"ok": False, "error": "not found"}, 404)
         return self._static(path)
@@ -2004,6 +2095,9 @@ class Handler(BaseHTTPRequestHandler):
             return self._chat()
         if path == "/api/settings/chat":
             return self._settings_chat()
+        if path == "/api/duckbot/decide":
+            code, data = duckbot_decide(self._body())
+            return self._json(data, code)
         if path in ("/api/eco-set", "/api/lights-set", "/api/ds4-move"):
             return self._write_route(path)
         return self._json({"ok": False, "error": "not found"}, 404)

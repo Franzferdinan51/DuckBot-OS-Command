@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { syncServerClock } from './format'
 import {
-  getChatStatus, getComfy, getConfig, getMetrics, getStations, getTokens,
-  type ChatStatus, type ComfyLane, type Metrics, type Res, type Station, type Tokens, type UiConfig,
+  getChatStatus, getComfy, getConfig, getDuckBot, getMetrics, getStations, getTokens,
+  type ChatStatus, type ComfyLane, type DuckBotState, type Metrics, type Res, type Station, type Tokens, type UiConfig,
 } from './api'
 
 /** Poll a fetcher. Keeps the last good data when a refresh fails; refreshes when the tab comes back. */
@@ -36,6 +36,7 @@ interface Dash {
   comfy: ComfyLane[] | null
   tokens: Tokens | null
   stations: Station[] | null
+  duckbot: DuckBotState | null
   chat: ChatStatus | null
   reloadChat: (force?: boolean) => void
 }
@@ -51,6 +52,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const comfy = usePoll(getComfy, 5000, !!cfg.data?.comfy.enabled)
   const tokens = usePoll(getTokens, 30000, !!cfg.data?.tokens.enabled)
   const stations = usePoll(getStations, 30000, !!cfg.data?.stations.enabled)
+  const duckbot = usePoll(getDuckBot, 10000, !!cfg.data?.duckbot?.enabled)
   const [chat, setChat] = useState<ChatStatus | null>(null)
   const reloadChat = useCallback(async (force = false) => {
     const r = await getChatStatus(force)
@@ -67,6 +69,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     config: cfg.data, configError: cfg.error,
     metrics: m.data, metricsError: m.error, metricsAt: m.at,
     comfy: comfy.data?.lanes || null, tokens: tokens.data, stations: stations.data?.stations || null,
+    duckbot: duckbot.data,
     chat, reloadChat,
   }
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>

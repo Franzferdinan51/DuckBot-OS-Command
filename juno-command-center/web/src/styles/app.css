@@ -429,3 +429,8 @@ body:not(.cursor-moved) .cursor { opacity: 0; }
 .card__chips .chip { display: inline-block; }
 :root[data-theme='light'] .btn:not(.btn--primary) { background: rgba(255, 255, 255, 0.7); }
 :root[data-theme='light'] .btn:not(.btn--primary):hover { color: #fff; }
+
+/* DuckBot OS control plane: SystemOne decide tester */
+.decide{display:flex;gap:10px;align-items:stretch}
+.decide .field{flex:1}
+.decide__out{margin:12px 0 0;padding:12px;border:1px solid var(--line);border-radius:10px;font-size:11px;line-height:1.55;white-space:pre-wrap;word-break:break-word;max-height:190px;overflow:auto;opacity:.85}
