@@ -50,6 +50,9 @@ export interface UiConfig {
   storage: { enabled: boolean }
   darkbloom: { enabled: boolean }
   duckbot: { enabled: boolean }
+  rsi: { enabled: boolean }
+  shield: { enabled: boolean }
+  defcon: { enabled: boolean }
   settings: { enabled: boolean }
   chat: { enabled: boolean; name: string; suggestions: string[] }
 }
@@ -115,8 +118,28 @@ export interface DarkbloomState {
   requests_served?: number | null; tokens_generated?: number | null; last_credit_at?: number | null; model?: string | null
 }
 export interface BoardEvent { ts: number; kind: string; text: string }
+export interface RsiState {
+  reachable?: boolean; ts?: number; err?: string
+  lineage?: string; head?: string; schedule?: string; band?: string; saturation?: string
+  last_night?: { date: string; kind: string; summary: string }
+  next_run?: { date: string; plan: string }
+  frozen?: { suite: string; base: string; drift: string }
+}
+export interface ShieldState {
+  reachable: boolean; ts: number; err?: string
+  version?: string; kev_count?: number | null; kev_date?: string; cvenow_reachable?: boolean
+  patch_applied?: number | null; patch_failed?: number | null; last_run?: string
+  targets?: number; blocked?: number
+}
+export interface DefconState {
+  reachable?: boolean; ts?: number; err?: string
+  declared?: number | null; estimate?: number; estimate_date?: string; note?: string
+  wireguard?: string; tailscale?: string; batman?: string
+}
+
 export interface Metrics {
   ts: number; version: string; read_only: boolean
+  rsi: RsiState; shield: ShieldState; defcon: DefconState
   nodes: FleetNode[]; switch: SwitchState; history: Record<string, number[]>; models: ModelState[]
   training?: TrainingState
   storage?: StorageState
@@ -161,7 +184,7 @@ export const getSettings = () => getJSON<SettingsData>('/api/settings')
 export interface DuckBotState {
   product: string; version: string; mode: string
   layers: {
-    hermes: { status: string; model: string; profiles: boolean }
+    hermes: { status: string; model: string; profiles: boolean; gateway?: string; webui?: string }
     rag: { status: string; path: string }
     systemOne: { status: string; mode: string; model?: string; backend?: string; reason?: string }
     opencode: { status: string; zenConfigured: boolean; localProviders: number }

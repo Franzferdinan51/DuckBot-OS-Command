@@ -35,7 +35,7 @@ export function ControlPlane() {
     <div className="fleet">
       <div className="cards cards--2">
         <Panel id="card-layers" title={<span>Connected layers</span>} chips={<Chip tone="muted">{duckbot.mode}</Chip>}>
-          <KV k="Hermes">{l.hermes.model} {statusChip(l.hermes.status)}</KV>
+          <KV k="Hermes">{l.hermes.model} {statusChip(l.hermes.status)}{l.hermes.gateway ? ` · gateway ${l.hermes.gateway}` : ''}{l.hermes.webui ? ` · webui ${l.hermes.webui}` : ''}</KV>
           <KV k="DuckBot RAG">{l.rag.path} {statusChip(l.rag.status)}</KV>
           <KV k="SystemOne">{l.systemOne.mode}{l.systemOne.model ? ` · ${l.systemOne.model}` : ''} {statusChip(l.systemOne.status)}</KV>
           <KV k="OpenCode">{l.opencode.localProviders} local provider(s) · Zen {l.opencode.zenConfigured ? 'configured' : 'not in local config'} {statusChip(l.opencode.status)}</KV>

@@ -4,7 +4,7 @@ import { useLayout } from '../lib/layout'
 import { Module } from '../components/Module'
 import { ThemeMenu } from '../components/ThemeMenu'
 import { Empty } from '../components/Panel'
-import { UnifiedCard, GpuCard, HostCard, SwitchCard, ModelCard, TrainingCard, AgentCard, StorageCard, DarkbloomCard } from './Cards'
+import { UnifiedCard, GpuCard, HostCard, SwitchCard, ModelCard, TrainingCard, AgentCard, StorageCard, DarkbloomCard, RsiCard, ShieldCard, DefconCard } from './Cards'
 import { KV, Panel } from '../components/Panel'
 import { Settings } from './Settings'
 import { ControlPlane } from './ControlPlane'
@@ -86,7 +86,12 @@ function TrainingModule() {
   if (!metrics) return <Empty>Waiting for the first poll...</Empty>
   const t = metrics.training
   if (!t) return <Empty>Training status not available.</Empty>
-  return <div className="cards cards--1"><TrainingCard t={t} stale={Math.max(metrics.thresholds.stale_after_s, 30)} /></div>
+  return (
+    <div className="cards cards--2">
+      <TrainingCard t={t} stale={Math.max(metrics.thresholds.stale_after_s, 30)} />
+      {metrics.rsi && <RsiCard r={metrics.rsi} />}
+    </div>
+  )
 }
 
 /* Keeps "updated Ns ago" lines ticking between polls without re-fetching. */
@@ -126,10 +131,12 @@ function FleetSection({ s, subs, toggleSub }: { s: SectionCfg; subs: string[]; t
           ))}
         </div>
       )}
-      {(config.storage?.enabled || config.darkbloom?.enabled) && (metrics.storage || metrics.darkbloom) && (
+      {(config.storage?.enabled || config.darkbloom?.enabled || config.shield?.enabled || config.defcon?.enabled) && (metrics.storage || metrics.darkbloom || metrics.shield || metrics.defcon) && (
         <div className="cards cards--4">
           {config.storage?.enabled && metrics.storage && <StorageCard s={metrics.storage} />}
           {config.darkbloom?.enabled && metrics.darkbloom && <DarkbloomCard d={metrics.darkbloom} />}
+          {config.shield?.enabled && metrics.shield && <ShieldCard s={metrics.shield} />}
+          {config.defcon?.enabled && metrics.defcon && <DefconCard d={metrics.defcon} />}
         </div>
       )}
       {metrics.events && metrics.events.length > 0 && (

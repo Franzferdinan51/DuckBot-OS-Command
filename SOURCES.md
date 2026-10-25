@@ -15,7 +15,7 @@ Snapshot created 2026-10-25.
 - Path: `juno-command-center/`
 - Source checkout: `~/command-center` on the Mac Studio
 - Source branch: `main`
-- Source commit: `46ec7a2` — "Merge DuckBot OS control plane into the Command Center" (2026-10-25)
+- Source commit: `8394f1a` — "Cards: RSI (beside Unsloth training), AI Shield, DEFCON posture" (2026-10-25, on top of the `46ec7a2` merge)
 - Prior home: `Franzferdinan51/The-Sparky-Command-Center`
 - **The merge:** DuckBot OS's control plane now lives inside this app — server-side `/api/duckbot` + `/api/duckbot/decide` (SystemOne shim proxy) in `server.py`, and a "Control plane" board module (`web/src/sections/ControlPlane.tsx`: connected layers, agent fleet, policy gate, automation, Brain decide tester) in this board's design. The standalone DuckBot OS server on :4177 was retired the same day; the unified dashboard runs on **:8895**.
 - Included: the tracked source files and built web UI from that commit.
