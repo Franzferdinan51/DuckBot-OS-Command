@@ -1,4 +1,4 @@
-import type { AgentNode, DarkbloomState, DefconState, DiscreteNode, Gpu, ModelState, RsiState, ShieldState, StorageState, SwitchState, TrainingState, UnifiedNode } from '../lib/api'
+import type { AgentNode, DarkbloomState, DiscreteNode, Gpu, ModelState, RsiState, StorageState, SwitchState, TrainingState, UnifiedNode } from '../lib/api'
 import { fmtBps, fmtTps, fx, isNum, tempTone, tempWord } from '../lib/format'
 import { Bar, Big, Chip, Fresh, KV, Led, Panel, Pill, Sparkline } from '../components/Panel'
 
@@ -345,48 +345,3 @@ export function RsiCard({ r }: { r: RsiState }) {
   )
 }
 
-export function ShieldCard({ s }: { s: ShieldState }) {
-  const reach = s.reachable
-  return (
-    <Panel id="card-shield" dim={!reach}
-      title={<><Led on={reach} /> <span>AI Shield</span></>}
-      chips={<>{s.version && <Chip>v{s.version}</Chip>}<Chip tone={reach ? 'good' : 'bad'}>{reach ? 'GUARDING' : 'DOWN'}</Chip></>}>
-      {reach ? (
-        <>
-          <KV k="Patches applied">{isNum(s.patch_applied) ? s.patch_applied : '—'}{isNum(s.patch_failed) ? ` · ${s.patch_failed} failed` : ''}</KV>
-          <KV k="Attackers blocked">{isNum(s.blocked) ? s.blocked : '—'}</KV>
-          <KV k="CISA KEV">{isNum(s.kev_count) ? s.kev_count.toLocaleString() : '—'}{s.kev_date ? ` · ${s.kev_date.slice(0, 10)}` : ''}</KV>
-          <KV k="CVE Now feed">{s.cvenow_reachable ? 'reachable' : 'via VM sync cache (home ISP blocks the domain)'}</KV>
-          <KV k="Targets">{isNum(s.targets) ? s.targets : '—'} · automation on · D1 gate</KV>
-          {s.last_run && <KV k="Last patch run">{String(s.last_run).slice(0, 16).replace('T', ' ')}</KV>}
-        </>
-      ) : <p className="card__err">AI Shield app not answering: {s.err || 'no data'}</p>}
-      <Fresh ts={s.ts} err={reach ? null : s.err} staleAfter={180} />
-    </Panel>
-  )
-}
-
-export function DefconCard({ d }: { d: DefconState }) {
-  const reach = !!d.estimate || d.declared != null
-  const level = d.declared ?? 5
-  return (
-    <Panel id="card-defcon" dim={!reach}
-      title={<><Led on={reach} /> <span>DEFCON posture</span></>}
-      chips={<Chip tone={d.declared ? 'bad' : 'good'}>{d.declared ? `DEFCON ${d.declared} DECLARED` : 'NOTHING DECLARED'}</Chip>}>
-      {reach ? (
-        <>
-          <div className="bigrow">
-            <Big label="Posture" value={`DEFCON ${level}`} />
-            <Big label="Advisory estimate" value={d.estimate ? `DEFCON ${d.estimate}` : '—'} small />
-          </div>
-          {d.estimate_date && <KV k="Estimate date">{d.estimate_date} · refreshed daily ~07:38 ET</KV>}
-          {d.wireguard && <KV k="WireGuard mesh">{d.wireguard}</KV>}
-          {d.tailscale && <KV k="Tailscale">{d.tailscale}</KV>}
-          {d.batman && <KV k="Batman SSH">{d.batman}</KV>}
-          {d.note && <KV k="Rule">{d.note}</KV>}
-        </>
-      ) : <p className="card__err">No DEFCON state pushed yet: {d.err || 'waiting for the VM pusher'}</p>}
-      <Fresh ts={d.ts || 0} err={reach ? null : d.err} staleAfter={3600} />
-    </Panel>
-  )
-}

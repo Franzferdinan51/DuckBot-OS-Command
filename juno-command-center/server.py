@@ -1384,8 +1384,6 @@ def snapshot():
         darkbloom = dict(STATE.get("darkbloom") or {})
         events = list(STATE.get("events") or [])
     rsi = rsi_snapshot()
-    shield = shield_snapshot()
-    defcon = defcon_snapshot()
     sd = CFG["defaults"]
     unified = [x for x in nodes if x.get("profile") == "unified"]
     discrete = [x for x in nodes if x.get("profile") != "unified"]
@@ -1437,8 +1435,6 @@ def snapshot():
         "storage": storage,
         "darkbloom": darkbloom,
         "rsi": rsi,
-        "shield": shield,
-        "defcon": defcon,
         "events": events,
         "spark_models": by_unit("spark"),
         "box_models": by_unit("box"),
@@ -1499,50 +1495,6 @@ def rsi_snapshot():
     d = dict(d)
     d["reachable"] = True
     return d
-
-
-def defcon_snapshot():
-    d = _read_pushed("defcon-stats.json")
-    if not d:
-        return {"reachable": False, "ts": 0, "err": "no DEFCON state pushed yet"}
-    d = dict(d)
-    d["reachable"] = True
-    return d
-
-
-_shield_cache = {"ts": 0, "data": None}
-
-
-def shield_snapshot():
-    now = time.time()
-    if _shield_cache["data"] and now - _shield_cache["ts"] < 20:
-        return _shield_cache["data"]
-    out = {"reachable": False, "ts": now, "err": "AI Shield app not answering"}
-    ok, text = _http_get("http://127.0.0.1:8770/api/status", timeout=4)
-    if ok and text:
-        try:
-            s = json.loads(text)
-            ps = s.get("patch_stats") or {}
-            blocked = 0
-            try:
-                with open(os.path.join(os.path.expanduser("~"), "aishield", "data", "netwatch-blocks.json")) as f:
-                    blocks = json.load(f)
-                blocked = sum(1 for t in blocks.values() if isinstance(t, dict)
-                              for ip in t if not ip.startswith("geo:"))
-            except Exception:  # noqa
-                pass
-            out = {"reachable": True, "ts": now,
-                   "version": s.get("version"),
-                   "kev_count": s.get("kev_count"), "kev_date": s.get("kev_date"),
-                   "cvenow_reachable": s.get("cvenow_reachable"),
-                   "patch_applied": ps.get("applied"), "patch_failed": ps.get("failed"),
-                   "last_run": ps.get("last_run"),
-                   "targets": len(s.get("targets") or []),
-                   "blocked": blocked}
-        except Exception as e:  # noqa
-            out = {"reachable": False, "ts": now, "err": "bad status payload: %s" % str(e)[:60]}
-    _shield_cache.update(ts=now, data=out)
-    return out
 
 
 # ----------------------------------------------------------------------------
@@ -2038,8 +1990,6 @@ def public_config():
         "darkbloom": {"enabled": bool(DARKBLOOM.get("enabled"))},
         "duckbot": {"enabled": True},
         "rsi": {"enabled": True},
-        "shield": {"enabled": True},
-        "defcon": {"enabled": True},
         "keylights": {"enabled": bool(CFG["keylights"].get("enabled")),
                       "writes": bool(CFG["keylights"].get("allow_writes")) and not READ_ONLY},
         "chat": {"enabled": bool(CHAT.get("enabled", True)), "name": CHAT.get("name") or "Juno",
